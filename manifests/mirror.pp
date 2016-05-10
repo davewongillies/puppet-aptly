@@ -47,19 +47,21 @@
 #
 define aptly::mirror (
   $location,
-  $key           = undef,
-  $keyserver     = 'keyserver.ubuntu.com',
-  $release       = $::lsbdistcodename,
-  $architectures = [],
-  $repos         = [],
-  $with_sources  = false,
-  $with_udebs    = false,
+  $key              = undef,
+  $keyserver        = 'keyserver.ubuntu.com',
+  $release          = $::lsbdistcodename,
+  $architectures    = [],
+  $repos            = [],
+  $with_sources     = false,
+  $with_udebs       = false,
+  $force_components = false,
 ) {
   validate_string($keyserver)
   validate_array($repos)
   validate_array($architectures)
   validate_bool($with_sources)
   validate_bool($with_udebs)
+  validate_bool($force_components)
 
   include ::aptly
 
@@ -109,7 +111,7 @@ define aptly::mirror (
   }
 
   exec { "aptly_mirror_create-${title}":
-    command => "${aptly_cmd} create ${architectures_arg} -with-sources=${with_sources} -with-udebs=${with_udebs} ${title} ${location} ${release}${components_arg}",
+    command => "${aptly_cmd} create ${architectures_arg} -with-sources=${with_sources} -with-udebs=${with_udebs} -force-components=${force_components} ${title} ${location} ${release}${components_arg}",
     unless  => "${aptly_cmd} show ${title} >/dev/null",
     user    => $::aptly::user,
     require => $exec_aptly_mirror_create_require,
